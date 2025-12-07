@@ -1,0 +1,4 @@
+{
+    "appService.defaultWebAppToDeploy": "/subscriptions/1e00132b-96c0-4c25-956e-8c91038d82b4/resourceGroups/shreya-rg/providers/Microsoft.Web/sites/URL-SHORTENER-API2",
+    "appService.deploySubpath": "url-shortener-backend"
+}
