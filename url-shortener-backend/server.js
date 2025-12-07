@@ -16,18 +16,41 @@ app.use(cors());
 // Helper function to validate URLs
 function isValidUrl(string) {
   try {
+    // Ensure the string can be parsed as a URL
     new URL(string);
+    // Optionally, prevent local host or short-url-API from being shortened
+    if (string.includes('localhost') || string.includes('azurewebsites.net')) {
+        return false;
+    }
     return true;
   } catch {
     return false;
   }
 }
 
-// GET all URLs in database (for debugging)
+// =======================================================
+// ⭐ CORE CONFIGURATION ROUTES (Order is crucial)
+// =======================================================
+
+// 1. Root Route (Health Check) - Must be first for base URL health check
+// This route will stop the default 404 on the base URL (e.g., https://your-app.azurewebsites.net/)
+app.get('/', (req, res) => {
+    res.json({ 
+        status: 'ok', 
+        service: 'URL Shortener API',
+        message: `API endpoints available under ${BASE_URL}/api`,
+    });
+});
+
+// 2. API Routes (Specific) - Must be before the generic redirect route
+// =======================================================
+
+// DEBUG: GET all URLs in database 
 app.get('/api/debug/urls', async (req, res) => {
   try {
+    // IMPORTANT: Make sure this require('./database') pattern works or pre-load it
     const pool = require('./database');
-    const sql = require('mssql');
+    const sql = require('mssql'); 
     const result = await pool
       .request()
       .query('SELECT short_code, original_url FROM urls');
@@ -57,7 +80,9 @@ app.post('/api/shorten', async (req, res) => {
   try {
     console.log('Calling urlService.createShortUrl...');
     const shortCode = await urlService.createShortUrl(url, expires_at || null);
-    const shortUrl = `${BASE_URL}/${shortCode}`;
+    
+    // IMPORTANT: BASE_URL must be correctly set in Azure App Settings
+    const shortUrl = `${BASE_URL}/${shortCode}`; 
 
     console.log('Response:', { short_url: shortUrl, short_code: shortCode });
     res.json({
@@ -70,7 +95,7 @@ app.post('/api/shorten', async (req, res) => {
   }
 });
 
-// GET STATS for a short code (must be before generic /:shortCode route)
+// GET STATS for a short code
 app.get('/api/stats/:shortCode', async (req, res) => {
   const { shortCode } = req.params;
 
@@ -83,7 +108,7 @@ app.get('/api/stats/:shortCode', async (req, res) => {
   }
 });
 
-// GENERATE QR CODE (must be before generic /:shortCode route)
+// GENERATE QR CODE
 app.get('/api/qr/:shortCode', (req, res) => {
   const { shortCode } = req.params;
   const shortUrl = `${BASE_URL}/${shortCode}`;
@@ -95,6 +120,9 @@ app.get('/api/qr/:shortCode', (req, res) => {
     margin: 1
   });
 });
+
+// 3. Redirect Route (Generic) - MUST be the last route defined
+// =======================================================
 
 // REDIRECT to original URL (generic route - must be last)
 app.get('/:shortCode', async (req, res) => {
