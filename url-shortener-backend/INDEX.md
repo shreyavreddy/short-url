@@ -12,7 +12,7 @@ Quick setup and testing guide to get the API running immediately.
 **Contains:**
 - 30-second setup
 - 5-minute API tests
-- Common commands
+- Common commandsi
 - Quick troubleshooting
 
 **→ Read this first if you just cloned the repo**

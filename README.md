@@ -671,10 +671,10 @@ For issues and questions:
 
 ## 👤 Author
 
-**Your Name**
-- GitHub: [@yourhandle](https://github.com/yourhandle)
-- Email: your.email@example.com
+
+- GitHub: https://github.com/shreyavreddy/short-url
+- Email: shreya.reddy110504@gmail.com
 
 ---
 
-**Made with ❤️ for URL shortening**
+**Made for URL shortening**
